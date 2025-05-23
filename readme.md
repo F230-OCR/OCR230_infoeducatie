@@ -6,7 +6,7 @@ Acest proiect oferă o soluție eficientă pentru ONG-uri care doresc să extrag
 [English version](https://apps.microsoft.com/detail/9n0198c2nvr1?hl=en-GB&gl=en)
 
 [Versiunea in română](https://apps.microsoft.com/detail/9n0198c2nvr1?hl=ro-RO&gl=RO)
-
+[Documentație tehnică](https://docs.google.com/document/d/1T8MZmgCQoSWmqdx0tsr3DfBniTSBel04/edit?usp=sharing&ouid=112972066538308461606&rtpof=true&sd=true)
 ## Scopul Proiectului
 
 Acest proiect ajută ONG-urile să automatizeze procesul de extragere a datelor din formularele 230, economisind timp și resurse. Prin utilizarea unui script Python bazat pe `easyocr`, datele sunt extrase și salvate într-un fișier text pentru fiecare persoană, iar fișierul imagine este mutat într-o structură de foldere organizată pe localități.
