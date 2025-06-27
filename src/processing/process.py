@@ -5,17 +5,9 @@ import numpy as np
 from src.processing.process_fields import process_fields
 from src.processing.filtre import capitalize_words
 
-global eff_ocr
-eff_ocr = False  # Setează True dacă EfficientOCR este disponibil, altfel False
-if eff_ocr == True:
-    try:
-        from efficient_ocr import EffOCR
-    except ImportError:
-        print("EfficientOCR nu este disponibil în process.py")
-        EffOCR = None
-else:
-    import easyocr
-    
+import easyocr
+
+
 reader = None  # Inițializăm variabila reader
 
 def set_reader(ocr_reader):
@@ -42,29 +34,8 @@ def proceseaza_zona(coord, idx, image):
         zona_decupata.save(os.path.join(debug_media_folder, f"debug_resized_{idx}.jpg"))  # Salvează imaginea mărită pentru debug
     
     zona_np = np.array(zona_decupata)  # convert in numpy array
-    
-    # Verificăm tipul de reader și folosim metoda corespunzătoare
-    try:
-        if isinstance(reader, EffOCR) and eff_ocr == True :
-            # Folosim EfficientOCR
-            print(f"Folosim EfficientOCR pentru zona {idx}")
-            rezultate = reader.infer(zona_np)
-            text = rezultate if isinstance(rezultate, str) else str(rezultate)
-        else:
-            # Folosim EasyOCR (fallback)
-            print(f"Folosim EasyOCR pentru zona {idx}")
-            rezultate = reader.readtext(zona_np)
-            text = " ".join([rezultat[1] for rezultat in rezultate])  # extract text from results
-    except Exception as e:
-        print(f"Eroare la OCR pentru zona {idx}: {e}")
-        # Fallback la EasyOCR dacă EfficientOCR eșuează
-        try:
-            print(f"Fallback la EasyOCR pentru zona {idx}")
-            rezultate = reader.readtext(zona_np)
-            text = " ".join([rezultat[1] for rezultat in rezultate])
-        except Exception as e2:
-            print(f"Eroare și la EasyOCR pentru zona {idx}: {e2}")
-            text = ""  # Return empty string if both fail
+    rezultate = reader.readtext(zona_np)
+    text = " ".join([rezultat[1] for rezultat in rezultate])  # extract text from results
     
     print(f"OCR text pentru zona {idx}: {text}")  # Afișează textul OCR pentru debug
     return text

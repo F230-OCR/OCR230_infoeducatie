@@ -25,6 +25,10 @@ class SplashScreen:
         # Setăm dimensiunea și poziția splash screen-ului
         self.splash.geometry(f"{splash_width}x{splash_height}+{splash_position_right}+{splash_position_down}")
         self.splash.overrideredirect(True)
+        
+        # Face splash screen-ul să apară deasupra tuturor ferestrelor
+        self.splash.attributes('-topmost', True)
+        self.splash.focus_force()
 
         # Creează canvas-ul și bara de progres imediat, imaginea după idle
         self.canvas = tk.Canvas(self.splash, width=400, height=300, highlightthickness=0)
@@ -39,21 +43,28 @@ class SplashScreen:
         # Încarcă imaginea după ce UI-ul a apărut (asigură afișare rapidă splash)
         self.splash.after_idle(self.load_image, splash_image_path)
 
-        # Închidem splash screen-ul și apelăm funcția callback după 3 secunde
-        self.splash.after(3000, self.close_splash)
+        # Închidem splash screen-ul și apelăm funcția callback după 3.5 secunde (după ce se termină progress bar-ul)
+        self.splash.after(3500, self.close_splash)
 
     def load_image(self, splash_image_path):
         try:
             # Încarcă imaginea și o convertește într-un obiect PhotoImage
             splash_image = Image.open(splash_image_path)
+            # Redimensionează imaginea la dimensiunea canvas-ului dacă este necesar
+            splash_image = splash_image.resize((400, 300), Image.Resampling.LANCZOS)
             self.splash_photo = ImageTk.PhotoImage(splash_image)
             self.canvas.create_image(0, 0, anchor="nw", image=self.splash_photo)
+            print("Splash image loaded successfully")
         except Exception as e:
-            pass  # Dacă nu se poate încărca imaginea, continuă fără ea
+            print(f"Error loading splash image: {e}")
+            # Creează un fundal colorat dacă imaginea nu se poate încărca
+            self.canvas.configure(bg='#2E2E2E')
+            self.canvas.create_text(200, 150, text="Loading...", fill="white", font=("Inter", 20))
 
     def update_progress(self, count):
         if count <= 30:
             self.progress['value'] = count * self.progress_step
+            self.splash.update_idletasks()  # Forțează actualizarea UI-ului
             self.splash.after(100, self.update_progress, count + 1)
 
     def close_splash(self):

@@ -3,84 +3,26 @@ import tkinter as tk
 from tkinter import messagebox
 import threading
 import easyocr
-try:
-    from efficient_ocr import EffOCR
-except ImportError:
-    print("EfficientOCR nu este instalat. Folosim EasyOCR ca fallback.")
-    import easyocr
-    EffOCR = None
+import easyocr
 from src.processing.process import set_reader, proceseaza_fisier
 from src.utils.utils import update_progress
-try:
-    import pdf2image
-except ImportError:
-    print("pdf2image nu este instalat. Funcționalitatea PDF nu va fi disponibilă.")
-    pdf2image = None
+import pdf2image
 from PIL import Image
 # from main import update_progress
 
 # Inițializăm reader-ul cu o valoare implicită pentru GPU
+global reader
 reader = None
 
 def initialize_reader(button_5_state):
     global reader
-    global eff_ocr
-    eff_ocr = False  # Setează True dacă EfficientOCR este disponibil, altfel False
-    if EffOCR is not None and eff_ocr == True:
-        # Folosim EfficientOCR dacă este disponibil
-        try:
-            if button_5_state == 1:
-                print("Inițializăm EfficientOCR pentru GPU cu modele engleze...")
-            else:
-                print("Inițializăm EfficientOCR pentru CPU cu modele engleze...")
-            
-            reader = EffOCR(
-                config={
-                    'Recognizer': {
-                        'char': {
-                            'model_backend': 'onnx',
-                            'model_dir': './models',
-                            'hf_repo_id': 'dell-research-harvard/effocr_en/char_recognizer',
-                        },
-                        'word': {
-                            'model_backend': 'onnx',
-                            'model_dir': './models',
-                            'hf_repo_id': 'dell-research-harvard/effocr_en/word_recognizer',
-                        },
-                    },
-                    'Localizer': {
-                        'model_dir': './models',
-                        'hf_repo_id': 'dell-research-harvard/effocr_en',
-                        'model_backend': 'onnx'
-                    },
-                    'Line': {
-                        'model_dir': './models',
-                        'hf_repo_id': 'dell-research-harvard/effocr_en',
-                        'model_backend': 'onnx',
-                    },
-                },
-                gpu=(button_5_state == 1)
-            )
-            print("EfficientOCR inițializat cu succes!")
-        except Exception as e:
-            print(f"Eroare la inițializarea EfficientOCR: {e}")
-            print("Revenind la EasyOCR...")
-            reader = None
-    
-    if EffOCR is None or reader is None and eff_ocr == False:
-        # Fallback la EasyOCR
-        try:
-            if button_5_state == 1:
-                print("Inițializăm EasyOCR pentru GPU.")
-                reader = easyocr.Reader(['en', 'ro'], gpu=True)
-            else:
-                print("Inițializăm EasyOCR pentru CPU.")
-                reader = easyocr.Reader(['en', 'ro'], gpu=False)
-        except Exception as e:
-            print(f"Eroare la inițializarea OCR: {e}")
-            # Fallback final fără GPU
-            reader = easyocr.Reader(['en', 'ro'], gpu=False)
-    
+    if button_5_state == 1:
+        print("Inițializăm EasyOCR pentru GPU.")
+        reader = easyocr.Reader(['en', 'ro'], gpu=True)
+    else:
+        print("Inițializăm EasyOCR pentru CPU.")
+        reader = easyocr.Reader(['en', 'ro'], gpu=False)
+        
     set_reader(reader)  # set reader-ul in process.py
 
 def run_processing(button_5_state, progress_bar, folder_input, folder_output, coordonate, reset_progress_callback, root):
